@@ -50,7 +50,7 @@ junit.xml
 !/.github/pull_request_template.md
 !/test/
 !/tsconfig.dev.json
-!/src/
+# !/src/
 /lib
 /dist/
 !/.eslintrc.json
