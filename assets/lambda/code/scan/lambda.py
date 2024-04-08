@@ -12,6 +12,7 @@ import os
 import pwd
 import subprocess
 import shutil
+import datetime
 from urllib.parse import unquote_plus
 from aws_lambda_powertools import Logger, Metrics
 
@@ -112,7 +113,8 @@ def set_status(bucket, key, status):
         old_tags = {i["Key"]: i["Value"] for i in response["TagSet"]}
     except botocore.exceptions.ClientError as e:
         logger.debug(e.response["Error"]["Message"])
-    new_tags = {"scan-status": status}
+    new_tags = {"av-timestamp": get_timestamp(),
+                "scan-status": status }
     tags = {**old_tags, **new_tags}
     s3_client.put_object_tagging(
         Bucket=bucket,
@@ -124,6 +126,9 @@ def set_status(bucket, key, status):
         },
     )
     metrics.add_metric(name=status, unit="Count", value=1)
+
+def get_timestamp():
+    return datetime.datetime.now(datetime.UTC).strftime("%Y/%m/%d %H:%M:%S UTC")
 
 
 def create_dir(input_bucket, input_key, download_path):
