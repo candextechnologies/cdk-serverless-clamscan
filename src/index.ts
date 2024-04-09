@@ -9,8 +9,7 @@ import {
 import {
   GatewayVpcEndpoint,
   GatewayVpcEndpointAwsService,
-  Port,
-  SecurityGroup, SubnetType, Vpc,
+  SecurityGroup, Vpc,
 } from 'aws-cdk-lib/aws-ec2';
 import { FileSystem, LifecyclePolicy, PerformanceMode } from 'aws-cdk-lib/aws-efs';
 import { EventBus, Rule, Schedule } from 'aws-cdk-lib/aws-events';
@@ -253,13 +252,8 @@ export class ServerlessClamscan extends Construct {
       this.errorDest = props.onError;
     }
 
-    const vpc = new Vpc(this, 'ScanVPC', {
-      subnetConfiguration: [
-        {
-          subnetType: SubnetType.PRIVATE_ISOLATED,
-          name: 'Isolated',
-        },
-      ],
+    const vpc = Vpc.fromLookup(this, 'ExistingVPC', {
+      vpcName: 'vpc-dev-01',
     });
 
     vpc.addFlowLog('FlowLogs');
@@ -420,10 +414,10 @@ export class ServerlessClamscan extends Construct {
         POWERTOOLS_SERVICE_NAME: 'virus-scan',
       },
     });
-    this._scanFunction.connections.allowToAnyIpv4(
-      Port.tcp(443),
-      'Allow outbound HTTPS traffic for S3 access.',
-    );
+    // this._scanFunction.connections.allowToAnyIpv4(
+    //   Port.tcp(443),
+    //   'Allow outbound HTTPS traffic for S3 access.',
+    // );
     defs_bucket.grantRead(this._scanFunction);
 
     const download_defs = new DockerImageFunction(this, 'DownloadDefs', {

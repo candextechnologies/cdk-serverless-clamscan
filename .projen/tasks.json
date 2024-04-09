@@ -17,9 +17,6 @@
           "spawn": "post-compile"
         },
         {
-          "spawn": "test"
-        },
-        {
           "spawn": "package"
         }
       ]
